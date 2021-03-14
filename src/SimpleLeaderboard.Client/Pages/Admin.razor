@@ -1,0 +1,75 @@
+﻿@page "/admin/{EventGuid}"
+@page "/admin/{EventGuid}/{LeaderboardGuid}"
+@page "/admin"
+
+<h1>Create Events and Leaderboards</h1>
+<div class="row">
+            <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-6 offset-lg-3 text-center">
+                @if(string.IsNullOrWhiteSpace(EventGuid) || _event == null) {
+                    <!-- Create an event -->
+                    <h1>Create new Event</h1>
+                    <AddEvent></AddEvent>
+                } else if (_event.AdminId != EventGuid) 
+                {
+                    <h1 class="text-danger">Not Authorised</h1>
+                } 
+                else {
+                    <h1>@_event?.Title</h1>
+                    <h5>@_event?.Description</h5>
+                    <h5 class="text-warning">@_message</h5>
+                    <select class="form-control" @onchange="ChangeLeaderboard" >
+                        <option value="">Create a new leaderboard</option>
+                        @foreach (var l in _leaderboards ?? new List<LeaderboardDto>())
+                        {
+                            <option selected='@(l.UniqueId == LeaderboardGuid ? "selected" : null)' value="@l.UniqueId">@l.Title</option>
+                        }
+                    </select>
+
+                    @if(string.IsNullOrWhiteSpace(LeaderboardGuid)) {
+                        <!-- CREATE A NEW LEADERBOARD AND PLAYERS -->
+                        <h5>Create a new leaderboard</h5>
+                        <AddLeaderboard Event="@_event"></AddLeaderboard>
+                    } else {
+                        var selected = _leaderboards?.FirstOrDefault(f => f.UniqueId == LeaderboardGuid);
+                        @if(selected == null){<p>Unable to load leaderboard</p>}
+                        else {
+                            <AddPlayer EventGuid="@EventGuid" Leaderboard="@selected"></AddPlayer>
+                        }
+                    }
+                }  
+            </div>
+    </div>
+
+    @code {
+        [Parameter]
+        public string EventGuid { get; set; }
+        [Parameter]
+        public string LeaderboardGuid { get; set; }
+        [Parameter]
+        public string EventAdminGuid { get; set; }
+        [Inject]
+        public HttpClient _http { get; set; }
+        [Inject]
+        public NavigationManager Nav { get; set; }
+
+        private LeaderboardEventDto _event;
+        private IEnumerable<LeaderboardDto> _leaderboards;
+        private string _message;
+
+        public async override Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+            if(!string.IsNullOrWhiteSpace(EventGuid)) {
+                var events = await _http.GetFromJsonAsync<IEnumerable<LeaderboardEventDto>>($"event?eventGuid={EventGuid}");
+                _event = events.FirstOrDefault();
+                var leaderboards = await _http.GetFromJsonAsync<IEnumerable<LeaderboardDto>>($"leaderboards/{EventGuid}");
+                _leaderboards = leaderboards;
+                StateHasChanged();
+            }
+        }
+
+        private void ChangeLeaderboard(ChangeEventArgs changeEvent)
+        {
+            Nav.NavigateTo($"/admin/{EventGuid}/{changeEvent.Value}");
+        }
+    }

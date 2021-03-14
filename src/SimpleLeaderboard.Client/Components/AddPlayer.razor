@@ -1,0 +1,72 @@
+@if(_createdPlayer != null ) 
+{
+    @foreach (var pl in _createdPlayer ?? new List<LeaderboardPlayerDto>())
+    {
+        <h3 class="text-success">@pl.Name (@pl.Nickname) has been created!</h3>
+    }
+
+}
+  <form class="form-horizontal">
+    <div class="form-row">
+        <div class="col-sm-2 offset-sm-10">
+            <button type="button" class="btn btn-outline-warning btn-block"@onclick="() => {_newPlayer.Add(new NewPlayer());}">Add Player</button>
+        </div>
+    </div>
+    @{int count = 0;}
+    @foreach (var pl in _newPlayer ?? new List<NewPlayer>())
+    {
+        <div class="form-row my-1">
+            <label class="control-label col-sm-2" for="player-@(count)">Title:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="player-@(count)" placeholder="Enter Name" required @bind="@pl.Name">
+            </div>
+        </div>
+        <div class="form-row my-1">
+            <label class="control-label col-sm-2" for="nickname-@(count)">Title:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="nickname-@(count)" placeholder="Enter Nickname" required @bind="@pl.Nickname">
+            </div>
+        </div>
+        count++;
+    }
+    <div class="form-row my-1">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="button" class="btn btn-outline-success btn-block" @onclick="CreateEvent">Submit</button>
+      </div>
+    </div>
+  </form>
+
+@code {
+    private const string ERR_PLAYER_CREATE = "Unable to create player, please try again";
+    [Parameter]
+    public LeaderboardDto Leaderboard { get; set; }
+    [Parameter]
+    public string EventGuid { get; set; }
+
+    private List<NewPlayer> _newPlayer = new List<NewPlayer>();
+    private List<LeaderboardPlayerDto> _createdPlayer = new List<LeaderboardPlayerDto>();
+    private string _errorMessage;
+
+
+    [Inject]
+    public HttpClient _http { get; set; }
+    [Inject]
+    public NavigationManager Nav { get; set; }
+    private async Task CreateEvent() {
+        _createdPlayer = new List<LeaderboardPlayerDto>();
+        var data = new {
+            LeaderboardId = Leaderboard.LeaderboardId,
+            Players = _newPlayer
+        };
+        using var res = await _http.PostAsJsonAsync("player", data);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            _errorMessage = ERR_PLAYER_CREATE;
+            return;
+        } 
+        var resPlayer = await res.Content.ReadFromJsonAsync<IEnumerable<LeaderboardPlayerDto>>();
+        _createdPlayer.AddRange(resPlayer); 
+        _newPlayer = new List<NewPlayer>();
+    }
+}

@@ -1,0 +1,87 @@
+@if(_newLeaderboard != null) 
+{
+    <h3>@_newLeaderboard.Title</h3>
+    <h5>Make note of the links below becuase once this page is gone there is no way to retrieve them</h5>
+    <h5>There is a public link to share with anyone you need or a admin one that will allow adding leaderboards/players</h5>
+    <p>Public: <a href="/@Event.UniqueId/@_newLeaderboard.UniqueId">@Nav.BaseUri/@Event.UniqueId/@_newLeaderboard.UniqueId</a></p>
+    <p>Admin: <a href="/@Event.AdminId/@_newLeaderboard.UniqueId">@Nav.BaseUri/@Event.AdminId/@_newLeaderboard.UniqueId</a></p>
+    <h5>Event Admin:</h5>
+    <p>Admin: <a href="/admin/@Event.AdminId/@_newLeaderboard.UniqueId">@Nav.BaseUri/@Event.AdminId/@_newLeaderboard.UniqueId</a></p>
+
+} else
+{
+  <form class="form-horizontal">
+    <div class="form-row my-1">
+      <label class="control-label col-sm-2" for="title">Title:</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="title" placeholder="Enter title" required @bind="@leaderboard.Title">
+      </div>
+    </div>
+    <div class="form-row">
+        <div class="col-sm-2 offset-sm-10">
+            <button type="button" class="btn btn-outline-warning btn-block"@onclick="() => {leaderboard.Players.Add(new NewPlayer());}">Add Player</button>
+        </div>
+    </div>
+    @{int count = 0;}
+    @foreach (var pl in leaderboard.Players ?? new List<NewPlayer>())
+    {
+        <div class="form-row my-1">
+            <label class="control-label col-sm-2" for="player-@(count)">Title:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="player-@(count)" placeholder="Enter Name" required @bind="@pl.Name">
+            </div>
+        </div>
+        <div class="form-row my-1">
+            <label class="control-label col-sm-2" for="nickname-@(count)">Title:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="nickname-@(count)" placeholder="Enter Nickname" required @bind="@pl.Nickname">
+            </div>
+        </div>
+        count++;
+    }
+    <div class="form-row my-1">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="button" class="btn btn-outline-success btn-block" @onclick="CreateEvent">Submit</button>
+      </div>
+    </div>
+  </form>
+}
+
+@code {
+    private const string ERR_EVENT_CREATE = "Unable to create leaderboard, please try again";
+    [Parameter]
+    public LeaderboardEventDto Event { get; set; }
+
+    private NewLeaderboard leaderboard;
+
+    private LeaderboardDto _newLeaderboard;
+    private string _errorMessage;
+
+
+    [Inject]
+    public HttpClient _http { get; set; }
+    [Inject]
+    public NavigationManager Nav { get; set; }
+    private async Task CreateEvent() 
+    {
+        using var res = await _http.PostAsJsonAsync("leaderboard", leaderboard);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            _errorMessage = ERR_EVENT_CREATE;
+            return;
+        } 
+
+        _newLeaderboard = await res.Content.ReadFromJsonAsync<LeaderboardDto>();
+    }
+
+    public async override Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+        leaderboard = new NewLeaderboard {
+            LeaderboardEventId = Event.LeaderboardEventId,
+            Players = new List<NewPlayer>()
+        };
+        
+    }
+}

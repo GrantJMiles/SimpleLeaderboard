@@ -1,0 +1,58 @@
+@if(_newEvent != null) 
+{
+    <h3>@_newEvent.Title</h3>
+    <h5>Make note of the links below becuase once this page is gone there is no way to retrieve them</h5>
+    <h5>There is a public link to share with anyone you need or a admin one that will allow adding leaderboards/players</h5>
+    <p>Public: <a href="/@_newEvent.UniqueId">@Nav.BaseUri/@_newEvent.UniqueId</a></p>
+    <p>Admin: <a href="/@_newEvent.AdminId">@Nav.BaseUri/@_newEvent.AdminId</a></p>
+    <h5>Event Admin:</h5>
+    <p>Admin: <a href="/admin/@_newEvent.AdminId">@Nav.BaseUri/@_newEvent.AdminId</a></p>
+
+} else
+{
+  <form class="form-horizontal">
+    <div class="form-row my-1">
+      <label class="control-label col-sm-2" for="title">Title:</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="title" placeholder="Enter title" required @bind="@title">
+      </div>
+    </div>
+    <div class="form-row my-1">
+      <label class="control-label col-sm-2" for="desc">Description:</label>
+      <div class="col-sm-10">
+          <textarea class="form-control" id="desc" required placeholder="Enter Description" rows="2" @bind="@description"></textarea>
+      </div>
+    </div>
+    <div class="form-row my-1">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="button" class="btn btn-outline-success btn-block" @onclick="CreateEvent">Submit</button>
+      </div>
+    </div>
+  </form>
+}
+
+@code {
+  private const string ERR_EVENT_CREATE = "Unable to create event, please try again";
+    private string title;
+    private string description;
+    private string _errorMessage;
+
+    private LeaderboardEventDto _newEvent;
+    [Inject]
+    public HttpClient _http { get; set; }
+    [Inject]
+    public NavigationManager Nav { get; set; }
+
+    private async Task CreateEvent() {
+        var postBody = new {Title = title, Description = description};
+        using var res = await _http.PostAsJsonAsync("event", postBody);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            _errorMessage = ERR_EVENT_CREATE;
+            return;
+        } 
+
+        _newEvent = await res.Content.ReadFromJsonAsync<LeaderboardEventDto>();
+    }
+}

@@ -1,0 +1,100 @@
+﻿@page "/"
+@page "/{EventGuid}"
+@page "/{EventGuid}/{LeaderboardGuid}"
+
+
+    <div class="row">
+            <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-6 offset-lg-3 text-center">
+                @if(string.IsNullOrWhiteSpace(EventGuid) || _event == null) {
+                    <h1>No Event Found!</h1>
+                } else {
+
+                    <h1>@_event?.Title</h1>
+                    <h5>@_event?.Description</h5>
+
+                    <select class="form-control" @onchange="ChangeLeaderboard" >
+                        <option value="">Combined Table</option>
+                        @foreach (var l in _leaderboards ?? new List<LeaderboardDto>())
+                        {
+                            <option selected='@(l.UniqueId == LeaderboardGuid ? "selected" : null)' value="@l.UniqueId">@l.Title</option>
+                        }
+                    </select>
+
+                    var players = string.IsNullOrWhiteSpace(LeaderboardGuid)
+                        ? _leaderboards.SelectMany(s => s.LeaderboardPlayers).OrderByDescending(o => o.Score)
+                        : _leaderboards?.FirstOrDefault(f => f.UniqueId == LeaderboardGuid)?.LeaderboardPlayers;
+                    @if(players == null || players.Count() ==0) {
+                        <p>Unable to retrieve leaderboard entries</p>
+                    } else {
+                        var selected = _leaderboards?.FirstOrDefault(f => f.UniqueId == LeaderboardGuid);
+                        var title = selected == null
+                            ? "Combined table across all leaderboards"
+                            : selected.Title;
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="5">@title</th>
+                                </tr>
+                                <tr>
+                                    <th class="border-right" colspan="1">Place</th>
+                                    <th colspan="2">Player</th>
+                                    <th colspan="2">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (players != null)
+                                {
+                                    int count = 0;
+                                    @foreach (var pl in players ?? new List<LeaderboardPlayerDto>())
+                                    {
+                                        var cls = count switch {
+                                            0 => "gold",
+                                            1 => "silver",
+                                            2 => "bronze",
+                                            _ => ""
+                                        };
+
+                                        <tr class="@cls">
+                                            <td class="border-right" colspan="1">#@(++count)</td>
+                                            <td colspan="2">@pl.Name (@pl.Nickname)</td>
+                                            <td colspan="2">@pl.Score</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                }  
+            </div>
+    </div>
+
+    @code {
+        [Parameter]
+        public string EventGuid { get; set; }
+        [Parameter]
+        public string LeaderboardGuid { get; set; }
+        [Inject]
+        public HttpClient _http { get; set; }
+        [Inject]
+        public NavigationManager Nav { get; set; }
+
+        private LeaderboardEventDto _event;
+        private IEnumerable<LeaderboardDto> _leaderboards;
+
+        public async override Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+            if(!string.IsNullOrWhiteSpace(EventGuid)) {
+                var events = await _http.GetFromJsonAsync<IEnumerable<LeaderboardEventDto>>($"event?eventGuid={EventGuid}");
+                _event = events.FirstOrDefault();
+                var leaderboards = await _http.GetFromJsonAsync<IEnumerable<LeaderboardDto>>($"leaderboards/{EventGuid}");
+                _leaderboards = leaderboards;
+                StateHasChanged();
+            }
+        }
+
+        private void ChangeLeaderboard(ChangeEventArgs changeEvent)
+        {
+            Nav.NavigateTo($"/{EventGuid}/{changeEvent.Value}");
+        }
+    }
