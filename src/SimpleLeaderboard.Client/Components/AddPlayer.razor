@@ -6,7 +6,7 @@
     }
 
 }
-  <form class="form-horizontal">
+  <form class="form-horizontal my-3">
     <div class="form-row">
         <div class="col-sm-2 offset-sm-10">
             <button type="button" class="btn btn-outline-warning btn-block"@onclick="() => {_newPlayer.Add(new NewPlayer());}">Add Player</button>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="form-row my-1">
-            <label class="control-label col-sm-2" for="nickname-@(count)">Title:</label>
+            <label class="control-label col-sm-2" for="nickname-@(count)">Nickname:</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="nickname-@(count)" placeholder="Enter Nickname" required @bind="@pl.Nickname">
             </div>

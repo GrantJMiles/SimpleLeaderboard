@@ -1,6 +1,5 @@
 @page "/postscore/{EventGuid}"
 @page "/postscore/{EventGuid}/{LeaderboardGuid}"
-
 <h1>Update Score</h1>
 <h5>@EventAdminGuid</h5>
 <div class="row">
@@ -31,14 +30,14 @@
                         else {
                             @if (selected.LeaderboardPlayers != null)
                             {
-                                <select class="form-control" @onchange="ChangePlayer">
-                                    <option disabled>Select a player</option>
+                                <select class="form-control" @bind="_selectedPlayerId">
+                                    <option value="0">Select a player</option>
                                     @foreach (var pl in selected.LeaderboardPlayers ?? new List<LeaderboardPlayerDto>())
                                     {
-                                        <option @key="@pl.LeaderboardPlayerId" value="@pl">@pl.Name (@pl.Nickname)</option>
+                                        <option @key="@pl.LeaderboardPlayerId" value="@pl.LeaderboardPlayerId">@pl.Name (@pl.Nickname)</option>
                                     }
                                 </select>
-
+                                _selectedPlayer = selected.LeaderboardPlayers.FirstOrDefault(f => f.LeaderboardPlayerId == _selectedPlayerId);
                                 @if(_selectedPlayer != null) {
                                     <form class="form-inline my-3">
                                         <div class="form-group">    
@@ -73,6 +72,7 @@
         private LeaderboardEventDto _event;
         private IEnumerable<LeaderboardDto> _leaderboards;
         private LeaderboardPlayerDto _selectedPlayer;
+        private int _selectedPlayerId;
         private string _message;
 
         public async override Task SetParametersAsync(ParameterView parameters)
@@ -90,10 +90,6 @@
         private void ChangeLeaderboard(ChangeEventArgs changeEvent)
         {
             Nav.NavigateTo($"/postscore/{EventGuid}/{changeEvent.Value}");
-        }
-        private void ChangePlayer(ChangeEventArgs changeEvent)
-        {
-            _selectedPlayer = (LeaderboardPlayerDto) changeEvent.Value;
         }
         private async Task UpdateScores(LeaderboardPlayerDto player, int leaderboardId) 
         {
