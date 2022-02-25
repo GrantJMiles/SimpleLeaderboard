@@ -51,10 +51,10 @@ namespace SimpleLeaderboard.Application
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v2/swagger.json", "Simple Leaderboard v2"));
-                db.Database.EnsureCreated();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v2/swagger.json", "Simple Leaderboard v2"));
+            db.Database.EnsureCreated();
 
             app.UseHttpsRedirection();
 
