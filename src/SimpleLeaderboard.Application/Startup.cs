@@ -32,7 +32,8 @@ namespace SimpleLeaderboard.Application
         public void ConfigureServices(IServiceCollection services)
         {
             var conn = Configuration.GetConnectionString("SimpleLeaderboardDb");
-            services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlServer(conn));
+            services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlite($"Data Source={conn}"));
+            // services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlServer(conn));
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSwaggerGen(c =>

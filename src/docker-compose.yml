@@ -6,16 +6,9 @@ services:
   simpleleaderboardapplication:
     image: gjmiles/simple-leaderboard:1.0
     environment:
-      - SimpleLeaderboardDb="Server=db;Database=SimpleLeaderboard;User Id=sa;Password=Your_password123;"
+      ConnectionStrings__SimpleLeaderboardDb: "SimpleLeaderboard.db"
     ports:
       - 5000:5000
-    networks:
-      - simpleLeaderboard
-  db:
-    image: "mcr.microsoft.com/mssql/server"
-    environment:
-      SA_PASSWORD: "Your_password123"
-      ACCEPT_EULA: "Y"
     networks:
       - simpleLeaderboard
 
