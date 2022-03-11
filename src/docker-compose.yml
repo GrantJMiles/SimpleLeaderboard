@@ -1,0 +1,16 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP .NET Core service.
+
+version: '3.4'
+
+services:
+  simpleleaderboardapplication:
+    image: gjmiles/simple-leaderboard:1.0
+    environment:
+      ConnectionStrings__SimpleLeaderboardDb: "SimpleLeaderboard.db"
+    ports:
+      - 5000:5000
+    networks:
+      - simpleLeaderboard
+
+networks:
+  simpleLeaderboard:

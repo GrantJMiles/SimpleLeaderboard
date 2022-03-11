@@ -31,8 +31,9 @@ namespace SimpleLeaderboard.Application
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var conn = Configuration.GetConnectionString("SimpleLeaderboardDb");
-            services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlServer(conn));
+            var conn = Configuration.GetConnectionString("SimpleLeaderboadDb");
+            services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlite($"Data Source={conn}"));
+            // services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlServer(conn));
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSwaggerGen(c =>
@@ -51,10 +52,10 @@ namespace SimpleLeaderboard.Application
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v2/swagger.json", "Simple Leaderboard v2"));
-                db.Database.EnsureCreated();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v2/swagger.json", "Simple Leaderboard v2"));
+            db.Database.EnsureCreated();
 
             app.UseHttpsRedirection();
 
