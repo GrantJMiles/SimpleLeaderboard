@@ -2,11 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (web)",
+            "name": "API",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/SimpleLeaderboard.Application/bin/Debug/net5.0/SimpleLeaderboard.Application.dll",
+            "program": "${workspaceFolder}/SimpleLeaderboard.Application/bin/Debug/net7.0/SimpleLeaderboard.Application.dll",
             "args": [],
             "cwd": "${workspaceFolder}/SimpleLeaderboard.Application",
             "stopAtEntry": false,

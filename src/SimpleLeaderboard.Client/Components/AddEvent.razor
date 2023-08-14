@@ -4,7 +4,7 @@
     <h5>Make note of the links below becuase once this page is gone there is no way to retrieve them</h5>
     <h5>There is a public link to share with anyone you need or a admin one that will allow adding leaderboards/players</h5>
     <p>Public: <a href="/@_newEvent.UniqueId">@Nav.BaseUri/@_newEvent.UniqueId</a></p>
-    <p>Admin: <a href="/@_newEvent.AdminId">@Nav.BaseUri/@_newEvent.AdminId</a></p>
+    <p>Admin: <a href="/admin/@_newEvent.AdminId">@Nav.BaseUri/@_newEvent.AdminId</a></p>
     <h5>Event Admin:</h5>
     <p>Admin: <a href="/admin/@_newEvent.AdminId">@Nav.BaseUri/@_newEvent.AdminId</a></p>
 
@@ -23,18 +23,41 @@
           <textarea class="form-control" id="desc" required placeholder="Enter Description" rows="2" @bind="@description"></textarea>
       </div>
     </div>
+    <button type="button" class="btn btn-outline-info btn-sm text-right text-muted" data-toggle="collapse" data-target="#advanced">Advanced</button>
+    <div class="collapse show" id="advanced">
+      <div class="form-row my-1">
+        <label class="control-label col-sm-2" for="adminid">Admin ID:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="adminid" placeholder="Enter Admin ID" @bind="@adminid">
+        </div>
+      </div>
+      <div class="form-row my-1">
+        <label class="control-label col-sm-2" for="uniqueId">Unique ID:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="uniqueId" placeholder="Enter Unique ID" @bind="@uniqueId">
+        </div>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="isDescending" @bind="@isDescending">
+        <label class="form-check-label" for="isDescending">Check for Highsest Score Wins</label>
+      </div>    
+    </div>
     <div class="form-row my-1">
       <div class="offset-sm-2 col-sm-10">
         <button type="button" class="btn btn-outline-success btn-block" @onclick="CreateEvent">Submit</button>
       </div>
     </div>
+
   </form>
 }
 
 @code {
   private const string ERR_EVENT_CREATE = "Unable to create event, please try again";
     private string title;
+    private string adminid;
+    private string uniqueId;
     private string description;
+    private bool isDescending = true;
     private string _errorMessage;
 
     private LeaderboardEventDto _newEvent;
@@ -44,7 +67,7 @@
     public NavigationManager Nav { get; set; }
 
     private async Task CreateEvent() {
-        var postBody = new {Title = title, Description = description};
+        var postBody = new {Title = title, Description = description, IsDescending = isDescending, AdminId = adminid, UniqueId = uniqueId};
         using var res = await _http.PostAsJsonAsync("event", postBody);
 
         if (!res.IsSuccessStatusCode)

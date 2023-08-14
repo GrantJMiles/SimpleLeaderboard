@@ -9,5 +9,8 @@ namespace SimpleLeaderboard.Domain
     {
         public string Title { get; set; }
         public string Description { get; set; }
+        public string UniqueId { get; set; }
+        public string AdminId { get; set; }
+        public bool IsDescending { get; set; } = true;
     }
 }

@@ -32,8 +32,17 @@ namespace SimpleLeaderboard.Application
         public void ConfigureServices(IServiceCollection services)
         {
             var conn = Configuration.GetConnectionString("SimpleLeaderboadDb");
-            services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlite($"Data Source={conn}"));
-            // services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlServer(conn));
+            if (!string.IsNullOrWhiteSpace(conn))
+            {
+                services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlServer(conn));
+            } else
+            {
+                var definedSqlitePath = Configuration.GetConnectionString("SqlitePath");
+                conn = string.IsNullOrWhiteSpace(definedSqlitePath)
+                    ? "./db.sqlite"
+                    : definedSqlitePath;
+                services.AddDbContext<SimpleLeaderboardContext>(options => options.UseSqlite($"Data Source={conn}"));
+            }
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSwaggerGen(c =>

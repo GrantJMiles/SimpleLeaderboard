@@ -21,8 +21,11 @@
                     </select>
 
                     var players = string.IsNullOrWhiteSpace(LeaderboardGuid)
-                        ? _leaderboards.SelectMany(s => s.LeaderboardPlayers).OrderByDescending(o => o.Score)
+                        ? _leaderboards.SelectMany(s => s.LeaderboardPlayers)
                         : _leaderboards?.FirstOrDefault(f => f.UniqueId == LeaderboardGuid)?.LeaderboardPlayers;
+                    players = _event.IsDescending
+                        ? players.OrderByDescending(o => o.Score)
+                        : players.OrderBy(o => o.Score);
                     @if(players == null || players.Count() ==0) {
                         <p>Unable to retrieve leaderboard entries</p>
                     } else {
@@ -80,6 +83,7 @@
 
         private LeaderboardEventDto _event;
         private IEnumerable<LeaderboardDto> _leaderboards;
+        private bool _isDescending;
 
         public async override Task SetParametersAsync(ParameterView parameters)
         {
