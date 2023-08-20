@@ -11,6 +11,7 @@ namespace SimpleLeaderboard.Client
         public string UniqueId { get; set; }
         public string AdminId { get; set; }
         public bool IsActive { get; set; }
+        public bool IsDescending { get; set; }
         IEnumerable<LeaderboardDto> Leaderboards { get; set; }
     }
 }

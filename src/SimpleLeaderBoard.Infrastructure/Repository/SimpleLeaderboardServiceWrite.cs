@@ -16,14 +16,14 @@ namespace SimpleLeaderboard.Infrastructure
             _db = db ?? throw new ArgumentException(nameof(SimpleLeaderboardContext));
         }
 
-        public async Task<LeaderboardDto> AddLeaderBoard(int LeaderboardEventId, string leaderboardTtitle, IEnumerable<LeaderboardPlayer> players)
+        public async Task<LeaderboardDto> AddLeaderBoard(int LeaderboardEventId, string leaderboardTitle, IEnumerable<LeaderboardPlayer> players, string uniqueId = null, string adminId = null)
         {
             var leaderboard = await _db.LeaderboardEvents.FirstOrDefaultAsync(f => f.LeaderboardEventId == LeaderboardEventId) ?? throw new ArgumentException("invalid leaderboard id");
             var newEntity = new Leaderboard {
-                AdminId = Guid.NewGuid().ToString(),
+                AdminId = string.IsNullOrWhiteSpace(adminId) ? Guid.NewGuid().ToString() : adminId,
                 LeaderboardEvent = leaderboard,
-                Title = leaderboardTtitle,
-                UniqueId = Guid.NewGuid().ToString()
+                Title = leaderboardTitle,
+                UniqueId = string.IsNullOrWhiteSpace(uniqueId) ? Guid.NewGuid().ToString() : uniqueId
             };
             await _db.Leaderboards.AddAsync(newEntity);
             await _db.SaveChangesAsync();
@@ -54,14 +54,15 @@ namespace SimpleLeaderboard.Infrastructure
             return newEntities.OrderByDescending(o => o.Score);
         }
 
-        public async Task<LeaderboardEventDto> CreateEvent(string title, string description)
+        public async Task<LeaderboardEventDto> CreateEvent(string title, string description, bool isDescending, string uniqueId = null, string adminId = null)
         {
             var newEntity = new LeaderboardEvent {
-                AdminId = Guid.NewGuid().ToString(),
+                AdminId = string.IsNullOrWhiteSpace(adminId) ? Guid.NewGuid().ToString() : adminId,
                 Description = description,
                 IsActive = true,
                 Title = title,
-                UniqueId = Guid.NewGuid().ToString()
+                IsDescending = isDescending,
+                UniqueId = string.IsNullOrWhiteSpace(uniqueId) ? Guid.NewGuid().ToString() : uniqueId
             };
             await _db.LeaderboardEvents.AddAsync(newEntity);
             await _db.SaveChangesAsync();
@@ -76,7 +77,7 @@ namespace SimpleLeaderboard.Infrastructure
             return LeaderboardEventDto.Create(leaderboardEvent);
         }
 
-        public async Task<LeaderboardPlayerDto> UpdatePlayerScore(int leaderboardId, int playerId, int playerScore)
+        public async Task<LeaderboardPlayerDto> UpdatePlayerScore(int leaderboardId, int playerId, double playerScore)
         {
             var player = await _db.LeaderboardPlayers.FirstOrDefaultAsync(f => f.LeaderboardPlayerId == playerId) ?? throw new ArgumentException("invalid player id");
             player.Score = playerScore;

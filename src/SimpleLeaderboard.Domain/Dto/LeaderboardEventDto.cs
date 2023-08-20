@@ -12,6 +12,7 @@ namespace SimpleLeaderboard.Domain
             UniqueId = entity.UniqueId;
             AdminId = entity.AdminId;
             IsActive = entity.IsActive;
+            IsDescending = entity.IsDescending;
             Leaderboards = includeRelative ? entity.Leaderboards.Select(s => LeaderboardDto.Create(s)) : new List<LeaderboardDto>();
         }
         public int LeaderboardEventId { get; set; }
@@ -20,6 +21,7 @@ namespace SimpleLeaderboard.Domain
         public string UniqueId { get; set; }
         public string AdminId { get; set; }
         public bool IsActive { get; set; }
+        public bool IsDescending { get; set; }
         IEnumerable<LeaderboardDto> Leaderboards { get; set; }
 
         public static LeaderboardEventDto Create(LeaderboardEvent entity) => new LeaderboardEventDto(entity);

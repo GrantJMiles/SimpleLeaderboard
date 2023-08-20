@@ -7,7 +7,7 @@ namespace SimpleLeaderboard.Client
         public string Name { get; set; }
         public string Nickname { get; set; }
         public string UniqueId { get; set; }
-        public int Score { get; set; }
+        public double Score { get; set; }
 
     }
 }

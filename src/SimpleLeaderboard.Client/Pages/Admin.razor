@@ -16,6 +16,7 @@
                 else {
                     <h1>@_event?.Title</h1>
                     <h5>@_event?.Description</h5>
+                    <h5>@(_event?.IsDescending ?? false ? "Highest" : "Lowest") Points Wins</h5>
                     <h5 class="text-warning">@_message</h5>
                     <select class="form-control" @onchange="ChangeLeaderboard" >
                         <option value="">Create a new leaderboard</option>

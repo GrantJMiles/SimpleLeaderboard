@@ -79,7 +79,7 @@ namespace SimpleLeaderboard.Application.Controllers
         public async Task<ActionResult<LeaderboardEventDto>> CreateEvent([FromBody] CreateEventDto eventToCreate) {
             try 
             {
-                var newEvent = await _write.CreateEvent(eventToCreate.Title, eventToCreate.Description);
+                var newEvent = await _write.CreateEvent(eventToCreate.Title, eventToCreate.Description, eventToCreate.IsDescending, eventToCreate.UniqueId, eventToCreate.AdminId);
                 return Ok(newEvent);
             }catch (Exception e) {
                 _logger.Log(LogLevel.Error, e.Message);
@@ -93,7 +93,7 @@ namespace SimpleLeaderboard.Application.Controllers
             try 
             {
                 var players = GetPlayersFromCreate(leaderboard.Players);
-                var updatedEvent = await _write.AddLeaderBoard(leaderboard.LeaderboardEventId, leaderboard.Title, players);
+                var updatedEvent = await _write.AddLeaderBoard(leaderboard.LeaderboardEventId, leaderboard.Title, players,leaderboard.UniqueId);
                 return Ok(updatedEvent);
             }catch (Exception e) {
                 _logger.Log(LogLevel.Error, e.Message);
@@ -115,7 +115,7 @@ namespace SimpleLeaderboard.Application.Controllers
         }
 
         [HttpPut("player")]
-        public async Task<ActionResult<LeaderboardPlayer>> UpdatePlayerScore([Required]int leaderboardId, [Required] int playerId, int playerScore)
+        public async Task<ActionResult<LeaderboardPlayer>> UpdatePlayerScore([Required]int leaderboardId, [Required] int playerId, double playerScore)
         {
             try 
             {

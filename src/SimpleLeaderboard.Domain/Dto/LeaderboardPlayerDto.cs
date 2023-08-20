@@ -14,7 +14,7 @@ namespace SimpleLeaderboard.Domain
         public string Name { get; set; }
         public string Nickname { get; set; }
         public string UniqueId { get; set; }
-        public int Score { get; set; }
+        public double Score { get; set; }
 
 
         public static LeaderboardPlayerDto Create(LeaderboardPlayer entity) => new LeaderboardPlayerDto(entity);
